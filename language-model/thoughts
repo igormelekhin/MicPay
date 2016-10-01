@@ -1,0 +1,20 @@
+-There could be some confidential information during some operations, like numbers of phones, or cards. 
+It is not a problem to perform such operations on the screen or make user choose the appropriate mode. 
+A bank should choose the best variant. We can just assume for simplicity that every operation is done with voice control.
+
+-Every operation should be confirmed. We can assume for simplicity that every operation is confirmed when it's spoken.
+
+-Right know, user identification is not in our work and we can assume that a user is identified by voice,
+or that a card is used for identification.
+
+-There is a fixed set of interface states, defining steps of operations.
+
+-We have defined steps of operation and always can return back to any step.
+
+-We should provide contex-free grammar rules for each transition between states, which are not that many.
+
+-There could be some incorrect information, not required information, extra words in commands.
+
+-There could be different styles of speech, e.g. it can be very colloqual speech.
+
+-Words in commands can be changed by synonims, can change grammatic form etc.

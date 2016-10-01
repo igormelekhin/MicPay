@@ -1,0 +1,7 @@
+Ideas how to improve lexicon.
+
+-Current lexicon has not a lot of words, which are present in language model and probably some dictionaries.
+-Current lexicon has basically letter-to-phone transcription and rarely colloquative transcription.
+-Current lexicon has colloquative spellings of some particular words, for example "щас" instead of "сейчас", but it only makes recognition less accurate, because it will be considered as 2 different words with separate probabilities.
+
+	When we will extend it we will face that some words do not have an accentation in our dictionaries. In this case we can consider all possible stresses as possible with equal probability, or we can some how use something like neural networks to put likely stresses (in this case we will probably need some grammatical information about word such as part of a speech).

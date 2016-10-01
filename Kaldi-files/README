@@ -1,1 +1,1 @@
-This folder contains lexicon file (words and transcriptions), instructions for Kaldi usage for Russian speech, script to run speech recognizer and trained model.
+This folder contains lexicon file (words and transcriptions), small language model file, instructions for Kaldi usage for Russian speech, script to run speech recognizer and trained model.

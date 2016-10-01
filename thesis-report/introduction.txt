@@ -1,0 +1,11 @@
+Introduction.
+
+	Voice control of ATMs seems almost inevitable. There are some quite important reasons as convenience, speed of service and general interface progress but there is a more solid reason which is hard to ignore. It is that bank cards have a lot of drawbacks which could be perfectly overcame by using person identification by his voice.
+Serious drawbacks of cards:
+-It can be lost (This problem had ??% people, according to [1]). Voice is always with a person;
+-It can be stolen (This problem had ??% people, according to [1]). Voice can not be stolen;
+-It can be falsifyed (This problem had ??% people, according to [1]). Voice is much harder to falsify.
+These problems could be solved by computer vision as well but it's too expensive.
+	All that means that future ATMs should have voice identification systems, which means that consequitive embedding of voice control will cause almost no costs and will be quite sensible in terms of optimality.
+	There exist few examples of voice control systems of ATMs, and voice identification is developing now. But there appeared a brand new technology of multi-chanel microphones, which can seriously improve accuracy for both tasks.
+	This work is about voice control engine for ATMs with multi-chanel microphone which seems promising and important according to foresaid.

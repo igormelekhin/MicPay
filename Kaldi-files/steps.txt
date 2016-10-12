@@ -6,102 +6,112 @@ Steps:
 
 3) Script cmd.sh contains parameters of your machine to perform the calculations in the right way. If you want you can see the details on http://kaldi-asr.org/doc/queue.html. Otherwise you should just do the following in cmd.sh:
 	-change all "queue.pl" to "run.pl" (this means that you will run the training on your local machine, not using GridEngine);
-	-add "export cuda_cmd="queue.pl --gpu 1" string (to use CUDA on your machine during DNN training).
+	-add "export cuda_cmd="run.pl --gpu 1" string (to use CUDA on your machine during DNN training).
 
 4) Script path.sh contains all the information about directories for training. In path.sh you should do the following:
 	-set KALDI_ROOT variable to the place of kaldi/ directory. Probably it is already correct, but perhaps you will need to change it somewhen if your scripts will not be located in the same place;
-	-set DATA_ROOT variable somewhere you want to download and store several Gb of training data (mostly wav files).
+	-set DATA_ROOT variable somewhere you want to download and store several Gb of training data (mostly wav files). Don't use relative adress, write full path to avoid fails in scripts.
 
 5) In getdata.sh you should:
 	-change DATA_SRC variable to suitable value like "http://www.repository.voxforge1.org/downloads/Russian/Trunk/Audio/Main/16kHz_16bit".
 
-6) Then you should run the getdata.sh script to download the speech archives to $DATA_ROOT and unpack it there. It will take some time.
+6) If you don't have tar, run "sudo apt-get install tar".
 
-7) If you have other sources of speech data then just put it there using the same format:
+7) If you don't have gawk then run "sudo apt-get install gawk".
+
+8) Then you should run the getdata.sh script to download the speech archives to $DATA_ROOT and unpack it there. It will take some time.
+
+9) Then go to http://www.speech.sri.com/projects/srilm/download.html. Write any data to the form and download the file, put it in kaldi/tools and rename to srilm.tgz and run there "./extras/install_sriml.sh".
+
+10) If you have other sources of speech data then just put it there using the same format as in Voxforge data:
 	-each speaker has his own directory $DATA_ROOT/extracted/<speaker_id> (if you set the speaker_id yourself than better find some information on http://kaldi-asr.org/doc/data_prep.html);
 	-this directory contains wav/(or flac/) and etc/ subdirectories;
 	-in wav/ you should have all the wav files of the speaker;
-	-in scr/ you should have PROMPTS file which contains wav file name (without .wav) and its trainscription;
+	-in scr/ you should have PROMPTS file which contains something similar to wav file name (without .wav) and its trainscription;
+	-probably it's better to create README in scr/ as in Voxforge data;
 	-other files don't matter.
 
-8) There is a problem with voxforge Russian data - the letters are not uppercased. You can put my files doUppercase.py and doUppercaseForEverybody.sh in $DATA_ROOT directory and run there doUppercaseForEverybody.sh (or do it yourself, it's not that difficult).
+11) There is a problem with voxforge Russian data - the letters are not uppercased. You can put my files doUppercase.py and doUppercaseForEverybody.sh in $DATA_ROOT directory and run there doUppercaseForEverybody.sh (or do it yourself, it's not that difficult).
 
-9) In local/make_trans.py you should comment lines 34-40, or just somehow make the script Russian-friendly.
+12) In local/make_trans.py you should comment lines 34-40, or just somehow make the script Russian-friendly.
 
-10) In local/voxforge_prepare_dict.sh you should do the following:
-	-Comment lines 13-23, 38-64. They are just useless for Russian;
+13) In local/voxforge_prepare_dict.sh you should do the following:
+	-Comment lines 13-23, 37-63. They are just useless for Russian;
 	-Put "return" string on line 65.
 
 
-11) Put your lexicon file in data/local/dict/cmudict-plain.txt. It should have just words and their transcriptions. Your words must be uppercased like promts(you can use doUppercase.py for this file). Transcription is just set of phones separeted by spaces. The whole file should look like:
+14) Put your lexicon file in data/local/dict/cmudict-plain.txt. It should have just words and their transcriptions. Your words must be uppercased like promts(you can use doUppercase.py for this file, or you can just use my file ru.dic). Transcription is just set of phones separeted by spaces. The whole file should look like:
 	ГУСТОМУ	g u0 s t o1 m u0
 	ГУСТОНАСЕЛЁННАЯ	g u0 s t o0 n a0 sj e0 lj o1 n n a0 j a0
 	ГУСТОНАСЕЛЁННОГО g u0 s t o0 n a0 sj e0 lj o1 n n o0 g o0
 	ГУСТОНАСЕЛЁННОЙ	g u0 s t o0 n a0 sj e0 lj o1 n n o0 j
 
-12) You should provide some language model (it is not required for training because we know exact words from transcriptions but required for decoding). You can easily change language model anytime after the whole training done to improve decoding. You can install SRILM (see tools/install_srilm.sh for installation instructions) and get language model from your training transcriptions (but it doesn't seem to be a very precise language model). You can instead put some ARPA language model to data/local/lm.arpa (you can use my file lm.arpa). If you have your language model in fst format then you can put it in data/lang_test/G.fst and comment 35-37 lines in local/voxforge_format_data.sh.  
+ 
+15) Now you need to do some initial data preparation. For this you should run a part of run.sh script, but before you should do the following:
+	-set njobs equal to the number of cores on your machine;
+	-set dialects="(.*)";
+	-set nspk_test(number of speakers) to 5 or 10 or something like that(better make it not less than njobs to avoid some potential problems with some scripts which will split test data for each core);
+	-set pos_dep_phones to false;
+	-set lm_order=1;
+	-put "return" string on line 65.
 
-13) Now you need to do some initial data preparation. For this you should run a part of run.sh script, but before you should do the following:
-	-Set njobs equal to the number of cores on your machine;
-	-Set dialects="(.*)";
-	-Set nspk_test(number of speakers) to 5 or 10 or something like that(better make it not less than njobs to avoid some potential problems with some scripts which will split test data for each core);
-	-Set pos_dep_phones to false;
-	-If you don't use SRILM to create language model from transcriptions than comment line 60;
-	-Put "return" string on line 65.
+16) If you don't have FLAC decompressor on your machine then install it by "sudo apt-get install flac".
 
-14) Run run.sh.
+17) Run run.sh.
 
-15) Now you should find data/local/dict/vocab-oov.txt (words in speech corpus out of vocabulary in your lexicon), copy it to data/local/dict/lexicon-oov.txt and just write transcriptions by hands, or maybe using some simple programs. If you find some strange words like "-pau-" or "<UNK>" then just put some random letter as their transciption or get rid of such words in transcriptions.
+18) Now you should find data/local/dict/vocab-oov.txt (words in speech corpus out of vocabulary in your lexicon), copy it to data/local/dict/lexicon-oov.txt and just write transcriptions by hands, or maybe using some simple programs. If you find some strange words like "-pau-" or "<UNK>" then just put some random letter as their transciption or get rid of such words in initial transcriptions.
 
-16) Now in local/voxforge_prepare_dict.sh you should comment lines 24-37 and the "return" string.
+19) You should provide some language model (it is not required for training because we know exact words from transcriptions but required for decoding). You can easily change language model anytime after the whole training done to improve decoding. On this step simple language model is created from your promts, but it is better to use more solid language models. You can put some ARPA language model to data/local/lm.arpa (you can use my file lm.arpa). If you have your language model in fst format then you can put it in data/lang_test/G.fst and comment 35-37 lines in local/voxforge_format_data.sh. 
 
-17) Copy kaldi/egs/babel/s5/conf/plp.conf to kaldi/egs/voxforge/s5/conf (just simple configurations for PLP extraction).
+20) Now in local/voxforge_prepare_dict.sh you should comment lines 25-35 and the "return" string.
 
-18) In run.sh you should do:
-	-comment lines 50-61;
+21) Create kaldi/egs/voxforge/s5/conf/plp.conf empty file.
+
+22) In run.sh you should do:
+	-comment lines 50-64;
 	-comment the "return" string;
 	-change everything related to "MFCC" by "PLP".
 
-19) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command). It probably will take a lot of time, like 8 hours. It will consequently train different models from the most primitive to the most sophisticated ones (but not DNN yet). Every model uses the alignments and other trained information provided by the previous model. Each model will create its own directory in exp/ (e.g. monophone model in exp/mono/).
+23) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command). It probably will take a lot of time, like 8 hours. It will consequently train different models from the most primitive to the most sophisticated ones (but not DNN yet). Every model uses the alignments and other trained information provided by the previous model. Each model will create its own directory in exp/ (e.g. monophone model in exp/mono/).
 
-20) Take kaldi/egs/wsj/s5/conf/decode_dnn.config and copy it to kaldi/egs/voxforge/s5/conf/ (just some simple options for scripts).
+24) Take kaldi/egs/wsj/s5/conf/decode_dnn.config and copy it to kaldi/egs/voxforge/s5/conf/ (just some simple options for scripts).
 
-21) Copy kaldi/egs/wsj/s5/local/nnet to kaldi/egs/voxforge/s5/local/nnet (it contains just run_dnn.sh).
+25) Copy kaldi/egs/wsj/s5/local/nnet to kaldi/egs/voxforge/s5/local/nnet (it contains just run_dnn.sh).
 
-22) In run.sh you should comment everything from line 50 to the end and put "local/nnet/run_dnn.sh" in the end.
+26) In run.sh you should comment everything from line 50 to the end and put "local/nnet/run_dnn.sh" in the end.
 
-23) In local/nnet/run_dnn.sh you should do the following:
+27) In local/nnet/run_dnn.sh you should do the following:
 	-Put somewhere in configs "njobs="+<number of cores on your machine>
 	-Set gmmdir equal to "exp/tri3b". It is a model to train a DNN on top of. You can try other exp/ dirs;
 	-Remove anything related to "test_eval92";
 	-Change "test_dev93" to "test";
 	-Change "train_si284" to "train";
+	-Remove "_bd_tgpr_dev93","_bd_tgpr" pieces of strings;
 	-After each "--nj" put $njobs instead of numbers.
 
-24) If you want you can run "nvidia-smi -c 3" command to set computation exclusive mode (only 1 task for 1 GPU), because otherwise you'll have a kaldi warning about that.
+28) If you want you can run "sudo nvidia-smi -c 3" command to set computation exclusive mode (only 1 task for 1 GPU)(it will be probably set to the default mode on the next reboot), because otherwise you'll have a kaldi warning about that.
 
-25) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command). It will take several hours. In case of fail of some iteration of pretraining or training it would be better to delete the files of the last iteration before running the scripts again (but I'm not sure that it is required). It would be good for you to watch logs and use nvidia-smi information. 
+29) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command). It will take several hours. In case of fail of some iteration of pretraining or training it would be better to delete the files of the last iteration before running the scripts again (but I'm not sure that it is required). It would be good for you to watch logs and use nvidia-smi information. 
 
+30) Now you have files: final.feature_transform, final.nnet, final.mdl, ali_train_pdf.counts (exp/dnn5b_pretrain-dbn_dnn_smbr/), HCLG.fst (exp/tri3b/graph/), words.txt (data/lang/), final.mat (exp/tri3b/), plp.conf (conf/). You can use it in my kaldi.sh script to run a decoding of your wav files. But if you want to make your DNN faster and more suitable for run-time work, than you should convert it following further steps.
 
-26) Now you have files: final.feature_transform, final.nnet, final.mdl, ali_train_pdf.counts (exp/dnn5b_pretrain-dbn_dnn_smbr/), HCLG.fst (exp/tri3b/graph/), words.txt (data/lang/), final.mat (exp/tri3b/), plp.conf (conf/). You can use it in my kaldi.sh script to run a decoding of your wav files. But if you want to make your DNN faster and more suitable for run-time work, than you should convert it following further steps.
+Way1 (but it didn't work in my case and I just used Way2):
+31) Copy kaldi/egs/rm/s5/local/run_dnn_convert_nnet2.sh to kaldi/egs/voxforge/s5/local.
 
-Way1:
-27) Copy kaldi/egs/rm/s5/local/run_dnn_convert_nnet2.sh to kaldi/egs/voxforge/s5/local.
-
-28) In kaldi/egs/voxforge/s5/local/run_dnn_convert_nnet2.sh you should do the following:
+32) In kaldi/egs/voxforge/s5/local/run_dnn_convert_nnet2.sh you should do the following:
 	-Change all "dnn4b" to "dnn5b";
 	-Delete all decode.sh commands, related to "graph_ug" (It is just some special language model from rm recipe);
 	-Put "njobs="+<number of cores on your machine> somewhere before the first command;
 	-Insert $njobs instead of numbers after each "--nj".
 
-29) In run.sh comment the last line and add kaldi/egs/rm/s5/local/run_dnn_convert_nnet2.sh.
+33) In run.sh comment the last line and add kaldi/egs/rm/s5/local/run_dnn_convert_nnet2.sh.
 
-30) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command).
+34) Run run.sh (probably it's better to use "nohup ./run.sh &> kaldiLog.txt &" command).
 
 Way2:
-27) Put you final.feature_transform and final.nnet files somewhere e.g. like /data/files/recognition/. Create test-nnet/ folder.
+31) Put you final.feature_transform and final.nnet files somewhere e.g. like /data/files/recognition/. Create test-nnet/ folder.
 
-28) Adjust this scripts and run:
+32) Adjust this scripts and run:
 ./../../../src/nnet2bin/nnet1-to-raw-nnet ./data/files/recognition/final.feature_transform ./test-nnet/0.raw
 ./../../../src/nnet2bin/nnet1-to-raw-nnet ./data/files/recognition/final.nnet ./test-nnet/1.raw
 ./../../../src/nnet2bin/raw-nnet-concat ./test-nnet/0.raw ~/test-nnet/1.raw ./test-nnet/concat.raw
